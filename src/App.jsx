@@ -11,16 +11,21 @@ import Lenis from 'lenis';
 export default function App() {
   useEffect(() => {
     const lenis = new Lenis({
-      duration: 1.5,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      duration: 2.5,
+      easing: (t) => 1 - Math.pow(1 - t, 3),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
       smoothWheel: true,
-      wheelMultiplier: 1,
+      wheelMultiplier: 0.8,
       smoothTouch: false,
       touchMultiplier: 2,
       infinite: false,
     })
+
+    // Make Lenis available globally for NavBar
+    if (typeof window !== 'undefined') {
+      window.lenis = lenis;
+    }
 
     function raf(time) {
       lenis.raf(time)
@@ -31,6 +36,9 @@ export default function App() {
 
     return () => {
       lenis.destroy()
+      if (typeof window !== 'undefined') {
+        delete window.lenis;
+      }
     }
   }, [])
 

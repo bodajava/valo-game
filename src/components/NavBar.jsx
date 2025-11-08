@@ -3,10 +3,17 @@ import gsap from "gsap";
 import { useWindowScroll } from "react-use";
 import { useEffect, useRef, useState } from "react";
 import { TiLocationArrow } from "react-icons/ti";
+import Lenis from "lenis";
 
 import Button from "./Button";
 
-const navItems = ["Nexus", "Vault", "Prologue", "About", "Contact"];
+const navItems = [
+  { name: "Hero", id: "hero" },
+  { name: "Features", id: "features" },
+  { name: "Story", id: "story" },
+  { name: "About", id: "about" },
+  { name: "Contact", id: "contact" }
+];
 
 const NavBar = () => {
   // State for toggling audio and visual indicator
@@ -16,6 +23,7 @@ const NavBar = () => {
   // Refs for audio and navigation container
   const audioElementRef = useRef(null);
   const navContainerRef = useRef(null);
+  const lenisRef = useRef(null);
 
   const { y: currentScrollY } = useWindowScroll();
   const [isNavVisible, setIsNavVisible] = useState(true);
@@ -62,6 +70,13 @@ const NavBar = () => {
     });
   }, [isNavVisible]);
 
+  useEffect(() => {
+    // Get Lenis instance from window if available
+    if (typeof window !== 'undefined' && window.lenis) {
+      lenisRef.current = window.lenis;
+    }
+  }, []);
+
   return (
     <div
       ref={navContainerRef}
@@ -87,10 +102,25 @@ const NavBar = () => {
               {navItems.map((item, index) => (
                 <a
                   key={index}
-                  href={`#${item.toLowerCase()}`}
+                  href={`#${item.id}`}
                   className="nav-hover-btn"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const element = document.getElementById(item.id);
+                    if (element) {
+                      if (lenisRef.current) {
+                        lenisRef.current.scrollTo(element, { 
+                          offset: 0,
+                          duration: 2.5,
+                          easing: (t) => 1 - Math.pow(1 - t, 3),
+                        });
+                      } else {
+                        element.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }
+                  }}
                 >
-                  {item}
+                  {item.name}
                 </a>
               ))}
             </div>
